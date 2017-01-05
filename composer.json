@@ -1,0 +1,24 @@
+{
+    "name": "nahid/hooker",
+    "description": "php hook system for binding any service in a action",
+    "type": "library",
+    "require": {
+        "php": ">=5.6"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nahid Bin Azhar",
+            "email": "nahid.dns@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "Nahid\\Hookr\\": "src/"
+        },
+        "files": [
+            "src/helpers/hook.php"
+        ]
+    }
+}

@@ -1,5 +1,5 @@
 {
-    "name": "nahid/hooker",
+    "name": "nahid/hookr",
     "description": "php hook system for binding any service in a action",
     "type": "library",
     "require": {

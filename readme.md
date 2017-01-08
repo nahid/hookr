@@ -81,3 +81,57 @@ so lets see.
   
 
   ![Demo](http://i.imgur.com/Udy1TkG.png "demo")
+
+  You can also bind multiple action with this hook. Hookr also support filter. Remind this when you bind multiple filter in a hook then every filter get data from previous filters return data. Suppose you want to add a filter hook in a blog view section.
+
+```
+  <h1>{{$blog->title}}</h1>
+  <p>
+  {{hook_filter('posts', $blog->content)}}
+  </p>
+```
+
+So we register a filter as 'posts'. Now another developer wants to support markdown for blog posts. so he can bind a filter for parse markdown.
+
+
+ ```php
+  use Nahid\Hookr\Facades\Hook;
+  
+  class BlogController extends Controller
+  {
+        public function getPosts()
+        {
+            Hook::bindFilter('posts', function($data) {
+                return parse_markdown($data);
+            }, 2);
+            
+            return view('post');
+       }
+  }
+  ```
+
+  Note: In filter, every callback function must have at least one param which is represent current data
+
+  so if you want to bind multiple data then
+
+   ```php
+  use Nahid\Hookr\Facades\Hook;
+  
+  class BlogController extends Controller
+  {
+        public function getPosts()
+        {
+            Hook::bindFilter('posts', function($data) {
+                return parse_markdown($data);
+            }, 2);
+
+            Hook::bindFilter('posts', function($data) {
+                return parse_bbcode($data);
+            }, 3);
+            
+            return view('post');
+       }
+  }
+  ```
+
+  Now then given data is parse by markdown and bbcode. See, here is second param for `bindFilter()` is a priority for binding. Both `bindAction()` and `bindFilter()` has this feature.

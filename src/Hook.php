@@ -4,69 +4,70 @@ namespace Nahid\Hookr;
 
 class Hook
 {
-    protected $hookActions = [];
-    protected $hookFilters = [];
+    protected static $hookActions = [];
+    protected static $hookFilters = [];
 
-    public function action($name, $params = [])
+    public static function action($name, $params = [])
     {
-        if (isset($this->hookActions[$name])) {
-            $actions = $this->makePriority($name);
+        if (isset(static::$hookActions[$name])) {
+            $actions = static::makePriority($name);
             foreach ($actions as $callback) {
-                $this->executeAction($callback['action'], $params);
+                static::executeAction($callback['action'], $params);
             }
         }
     }
 
-    public function bindAction($name, $callback, $priority = 0)
+    public static function bindAction($name, $callback, $priority = 0)
     {
-        if (!isset($this->hookActions[$name])) {
-            $this->hookActions[$name][] = [
+        if (!isset(static::$hookActions[$name])) {
+            static::$hookActions[$name][] = [
                 'action' => $callback,
                 'priority' => $priority,
             ];
         } else {
-            array_push($this->hookActions[$name], [
+            array_push(static::$hookActions[$name], [
                 'action' => $callback,
                 'priority' => $priority,
             ]);
         }
+
     }
 
-    public function filter($name, $data, $params = [])
+    public static function filter($name, $data, $params = [])
     {
-        if (isset($this->hookFilters[$name])) {
-            $filters = $this->makePriority($name, 'filter');
+        if (isset(static::$hookFilters[$name])) {
+            $filters = static::makePriority($name, 'filter');
             foreach ($filters as $callback) {
-                $data = $this->executeFilter($callback['action'], $data, $params);
+                $data = static::executeFilter($callback['action'], $data, $params);
             }
         }
 
         return $data;
     }
 
-    public function bindFilter($name, $callback, $priority = 0)
+    public static function bindFilter($name, $callback, $priority = 0)
     {
-        if (!isset($this->hookFilters[$name])) {
-            $this->hookFilters[$name][] = [
+        if (!isset(static::$hookFilters[$name])) {
+            static::$hookFilters[$name][] = [
                 'action' => $callback,
                 'priority' => $priority,
             ];
         } else {
-            array_push($this->hookFilters[$name], [
+            array_push(static::$hookFilters[$name], [
                 'action' => $callback,
                 'priority' => $priority,
             ]);
         }
     }
 
-    protected function newClassInstance($class, $params = [])
+    protected static function newClassInstance($class, $params = [])
     {
         $reflection = new \ReflectionClass($class);
 
         return $reflection->newInstanceArgs($params);
     }
 
-    protected function executeAction($action, $params)
+    protected static function executeAction($action, $params)
     {
         if (is_callable($action)) {
             return call_user_func_array($action, $params);
@@ -74,16 +75,16 @@ class Hook
 
         if (is_string($action)) {
             $action = explode('@', $action);
-            $func = $this->makeMethodParam($action[1]);
-            $class = $this->makeMethodParam($action[0]);
-            $instance = $this->newClassInstance($class['method'], $class['params']);
+            $func = static::makeMethodParam($action[1]);
+            $class = static::makeMethodParam($action[0]);
+            $instance = static::newClassInstance($class['method'], $class['params']);
             if (count($action) > 1) {
                 return call_user_func_array([$instance, $func['method']], $params);
             }
         }
     }
 
-    protected function executeFilter($action, $data, $params = [])
+    protected static function executeFilter($action, $data, $params = [])
     {
         if (is_callable($action)) {
             array_unshift($params, $data);
@@ -93,17 +94,17 @@ class Hook
 
         if (is_string($action)) {
             $action = explode('@', $action);
-            $func = $this->makeMethodParam($action[1]);
+            $func = static::makeMethodParam($action[1]);
             array_unshift($params, $data);
-            $class = $this->makeMethodParam($action[0]);
-            $instance = $this->newClassInstance($class['method'], $class['params']);
+            $class = static::makeMethodParam($action[0]);
+            $instance = static::newClassInstance($class['method'], $class['params']);
             if (count($action) > 1) {
                 return call_user_func_array([$instance, $func['method']], $params);
             }
         }
     }
 
-    protected function makeMethodParam($method)
+    protected static function makeMethodParam($method)
     {
         $methods = explode(':', $method);
         $param = [];
@@ -118,7 +119,7 @@ class Hook
         ];
     }
 
-    protected function compare($value1, $value2)
+    protected static function compare($value1, $value2)
     {
         if ($value1['priority'] == $value2['priority']) {
             return -1;
@@ -127,18 +128,18 @@ class Hook
         return ($value1['priority'] < $value2['priority']) ? -1 : 1;
     }
 
-    protected function makePriority($name, $type = 'action')
+    protected static function makePriority($name, $type = 'action')
     {
         if ($type == 'action') {
-            usort($this->hookActions[$name], [$this, 'compare']);
+            usort(static::$hookActions[$name], [new self, 'compare']);
 
-            return $this->hookActions[$name];
+            return static::$hookActions[$name];
         }
 
         if ($type == 'filter') {
-            usort($this->hookFilters[$name], [$this, 'compare']);
+            usort(static::$hookFilters[$name], [new self, 'compare']);
 
-            return $this->hookFilters[$name];
+            return static::$hookFilters[$name];
         }
     }
 }

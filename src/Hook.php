@@ -8,6 +8,11 @@ class Hook
     protected static $hookFilters = [];
     protected static $instance = null;
 
+    /**
+     * make singleton
+     *
+     * @return static
+     */
     public static function getInstance()
     {
         if (is_null(static::$instance)) {
@@ -17,6 +22,12 @@ class Hook
         return static::$instance;
     }
 
+    /**
+     * declare action hook
+     *
+     * @param string $name
+     * @param array $params
+     */
     public static function action($name, $params = [])
     {
         if (isset(static::$hookActions[$name])) {
@@ -27,6 +38,13 @@ class Hook
         }
     }
 
+    /**
+     * bind action with hook
+     *
+     * @param   string  $name
+     * @param   callable $callback
+     * @param   int $priority
+     */
     public static function bindAction($name, $callback, $priority = 0)
     {
         if (!isset(static::$hookActions[$name])) {
@@ -43,6 +61,14 @@ class Hook
 
     }
 
+    /**
+     * declare filter hook
+     *
+     * @param   string $name
+     * @param   mixed $data
+     * @param   array $params
+     * @return  mixed
+     */
     public static function filter($name, $data, $params = [])
     {
         if (isset(static::$hookFilters[$name])) {
@@ -55,6 +81,13 @@ class Hook
         return $data;
     }
 
+    /**
+     * bind filter with hook
+     *
+     * @param     string $name
+     * @param     callable $callback
+     * @param     int $priority
+     */
     public static function bindFilter($name, $callback, $priority = 0)
     {
         if (!isset(static::$hookFilters[$name])) {
@@ -70,6 +103,13 @@ class Hook
         }
     }
 
+    /**
+     * make class from string with array param
+     *
+     * @param       string $class
+     * @param       array $params
+     * @return object
+     */
     protected static function newClassInstance($class, $params = [])
     {
         $reflection = new \ReflectionClass($class);
@@ -77,6 +117,13 @@ class Hook
         return $reflection->newInstanceArgs($params);
     }
 
+    /**
+     * apply action from hook
+     *
+     * @param callable $action
+     * @param array $params
+     * @return mixed
+     */
     protected static function executeAction($action, $params)
     {
         if (is_callable($action)) {
@@ -94,6 +141,12 @@ class Hook
         }
     }
 
+    /**
+     * @param       callable $action
+     * @param       mixed $data
+     * @param       array $params
+     * @return      mixed
+     */
     protected static function executeFilter($action, $data, $params = [])
     {
         if (is_callable($action)) {
@@ -114,6 +167,12 @@ class Hook
         }
     }
 
+    /**
+     * make param from input string
+     *
+     * @param string $method
+     * @return array
+     */
     protected static function makeMethodParam($method)
     {
         $methods = explode(':', $method);
@@ -129,6 +188,13 @@ class Hook
         ];
     }
 
+    /**
+     * compare two input
+     *
+     * @param int $value1
+     * @param int $value2
+     * @return int
+     */
     protected static function compare($value1, $value2)
     {
         if ($value1['priority'] == $value2['priority']) {
@@ -138,6 +204,13 @@ class Hook
         return ($value1['priority'] < $value2['priority']) ? -1 : 1;
     }
 
+    /**
+     * make action/filter priority
+     *
+     * @param        string $name
+     * @param        string $type
+     * @return       mixed
+     */
     protected static function makePriority($name, $type = 'action')
     {
         if ($type == 'action') {

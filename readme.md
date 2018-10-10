@@ -1,6 +1,6 @@
-# laravel-hookr
+# PHP hookr
 
-A laravel package for action and filter hook. Its helps to you fire any event with your desire action. Its a similar service as WP action and filter.
+A PHP package for action and filter hook. Its helps to you fire any event with your desire action. Its a similar service as WP action and filter.
   
 ## Installation
 
@@ -10,7 +10,7 @@ Write these command from you terminal.
 composer require nahid/hookr
 ```
 
-## Configuration
+## Laravel Configuration
 
 After complete installation go to `config/app.php` and add this line in providers section
 
